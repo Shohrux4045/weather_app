@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Forecast</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- jQuery UI CSS -->
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/smoothness/jquery-ui.css">
+    <style>
+        .weather-info {
+            margin-top: 20px;
+        }
+        .search-history {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="my-4">Weather Forecast</h1>
+
+        <form method="post" action="{% url 'index' %}">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="id_city">City:</label>
+                <input type="text" id="id_city" name="city" class="form-control" value="{{ form.city.value|default_if_none:'' }}" placeholder="Enter city name" />
+            </div>
+            <button type="submit" class="btn btn-primary">Get Weather</button>
+        </form>
+
+        {% if weather_data %}
+            <div class="weather-info">
+                <h2>Weather in {{ weather_data.city }}</h2>
+                <p>Temperature: {{ weather_data.temperature }}°C</p>
+            </div>
+        {% endif %}
+
+        {% if searches %}
+            <div class="search-history">
+                <h2>Previous Searches</h2>
+                <ul class="list-group">
+                    {% for search in searches %}
+                        <li class="list-group-item">
+                            <a href="{% url 'index' %}?city={{ search.city_name }}">{{ search.city_name }}</a> 
+                            (searched {{ search.search_count }} times)
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <!-- jQuery UI JS -->
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+    <script>
+        $(function() {
+            $("#id_city").autocomplete({
+                source: "{% url 'autocomplete' %}",
+                minLength: 2,
+                select: function(event, ui) {
+                    $("#id_city").val(ui.item.value);
+                    return false;
+                }
+            });
+        });
+    </script>
+</body>
+</html>
